@@ -53,6 +53,7 @@ for (let c = 0; c < brickColumnCount; c++) {
     }
 }
 
+let score = 0;
 
 function drawBall() {
     ctx.beginPath();
@@ -89,6 +90,13 @@ function drawBricks() {
     }
 } // function drawBricks()
 
+// draw score
+function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText(`Score: ${score}`, 8, 20);
+} // function drawScore()
+
 function draw() {
     // clear canvas
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -96,6 +104,8 @@ function draw() {
     drawBall();
     // draw a paddle
     drawPaddle();
+    // draw score
+    drawScore();
     // collision detection between the ball and blicks
     collisionDetection();
     // draw bricks
@@ -182,6 +192,12 @@ function collisionDetection() {
                     y > b.y && y < b.y+brickHeight) {
                     dy = -dy;
                     b.status = 0; // disappear
+		    score++;
+		    if (score === brickRowCount * brickColumnCount) {
+			alert("YOU WIN, CONGRATULATIONS!");
+			document.location.reload();
+			clearInterval(interval); // Needed for Chrome to end game
+		    }
                 }
             }
         }
