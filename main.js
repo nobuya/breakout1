@@ -163,10 +163,13 @@ function draw_old() {
     y += dy;
 } // function draw_old() 
 
-// event listener
+// event listener (keybord)
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+// event listener (mouse)
+document.addEventListener("mousemove", mouseMoveHandler, false);
 
+// keyboard operation handler (down)
 function keyDownHandler(e) {
     if (e.key === "Right" || e.key === "ArrowRight") {
 	rightPressed = true;
@@ -175,6 +178,7 @@ function keyDownHandler(e) {
     }
 } // function keyDownHandler(e)
 
+// keyboard operation handler (up)
 function keyUpHandler(e) {
     if (e.key === "Right" || e.key === "ArrowRight") {
 	rightPressed = false;
@@ -182,6 +186,15 @@ function keyUpHandler(e) {
 	leftPressed = false;
     }
 } // function keyUpHandler(e)
+
+// mouse move operation handler
+function mouseMoveHandler(e) {
+    const relativeX = e.clientX - canvas.offsetLeft;
+    if (relativeX > 0 && relativeX < canvas.width) {
+        paddleX = relativeX - paddleWidth / 2;
+    }
+} // function mouseMoveHandler(e)
+
 
 function collisionDetection() {
     for (let c = 0; c < brickColumnCount; c++) {
