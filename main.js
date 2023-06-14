@@ -54,6 +54,7 @@ for (let c = 0; c < brickColumnCount; c++) {
 }
 
 let score = 0;
+let lives = 3;
 
 function drawBall() {
     ctx.beginPath();
@@ -97,6 +98,13 @@ function drawScore() {
     ctx.fillText(`Score: ${score}`, 8, 20);
 } // function drawScore()
 
+// draw lives
+function drawLives() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
+} // function drawLives() 
+
 function draw() {
     // clear canvas
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -106,6 +114,8 @@ function draw() {
     drawPaddle();
     // draw score
     drawScore();
+    // draw lives
+    drawLives();
     // collision detection between the ball and blicks
     collisionDetection();
     // draw bricks
@@ -132,9 +142,18 @@ function draw() {
 	if (x > paddleX && x < paddleX + paddleWidth) { // hit the paddle
 	    dy = - dy;
 	} else {
-	    alert("GAME OVER")
-	    document.location.reload();
-	    clearInterval(interval); // Needed for Chrome to end game
+	    lives--;
+	    if (!lives) {
+		alert("GAME OVER")
+		document.location.reload();
+		//clearInterval(interval); // Needed for Chrome to end game
+	    } else {
+		x = canvas.width / 2;
+		y = canvas.height - 30;
+		dx = 2;
+		dy = -2;
+		paddleX = (canvas.width - paddleWidth) / 2;
+	    }
 	}
     }
     x += dx;
@@ -146,22 +165,10 @@ function draw() {
     } else if (leftPressed) {
 	paddleX = Math.max(paddleX - 7, 0);
     }
+
+    requestAnimationFrame(draw);
 } // function draw()
 
-
-function draw_old() {
-    // draw code
-    // clear canvas
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    // draw
-    ctx.beginPath();
-    ctx.arc(x, y, 10, 0, Math.PI * 2);
-    ctx.fillStyle = "#0095DD";
-    ctx.fill();
-    ctx.closePath();
-    x += dx;
-    y += dy;
-} // function draw_old() 
 
 // event listener (keybord)
 document.addEventListener("keydown", keyDownHandler, false);
@@ -209,7 +216,7 @@ function collisionDetection() {
 		    if (score === brickRowCount * brickColumnCount) {
 			alert("YOU WIN, CONGRATULATIONS!");
 			document.location.reload();
-			clearInterval(interval); // Needed for Chrome to end game
+			//clearInterval(interval); // Needed for Chrome to end game
 		    }
                 }
             }
@@ -219,6 +226,7 @@ function collisionDetection() {
 
 
 // draw interval
-const interval = setInterval(draw, 20);
+//const interval = setInterval(draw, 20);
+draw();
 
 // End of file (main.js) 
