@@ -61,9 +61,7 @@ const paddleWidth = 75;
 let paddleX = (CANVAS_WIDTH - paddleWidth) / 2;
 
 // button (key) state
-let rightPressed = false;
-let leftPressed = false;
-let keyBPressed = false;
+let keyboard = {};
 
 // bricks
 const brickRowCount    = 3;
@@ -84,7 +82,7 @@ function initBricks() {
 	    //bricks[c][r] = { x: 0, y: 0, status: 1 };
 	    const brickX = c * (BRICK_WIDTH  + brickPadding) + brickOffsetLeft;
 	    const brickY = r * (BRICK_HEIGHT + brickPadding) + brickOffsetTop;
-	    const aBrick = new Brick(brickX, brickY)
+	    const aBrick = new Brick(brickX, brickY, /* hp */3)
 	    bricks.push(aBrick)
 	}
     }
@@ -104,8 +102,8 @@ function updateBall() {
 	    balls.splice(i, 1); // clear
 	}
     }
-    if (keyBPressed) {
-	keyBPressed = false;
+    if (keyboard.B) {
+	keyboard.B = false;
 	balls.push(new Ball(paddleX + paddleWidth / 2, INITIAL_BALL_Y,
 			    INITIAL_BALL_RADIUS,
 			    INITIAL_BALL_DX * speed, INITIAL_BALL_DY * speed));
@@ -123,9 +121,9 @@ function updateBricks() {
 
 function updatePaddle() {
     // paddle operation
-    if (rightPressed) {
+    if (keyboard.Right) {
 	paddleX = Math.min(paddleX + 7, CANVAS_WIDTH - paddleWidth);
-    } else if (leftPressed) {
+    } else if (keyboard.Left) {
 	paddleX = Math.max(paddleX - 7, 0);
     }
 } // function updatePaddle()
@@ -223,50 +221,9 @@ function drawAll() {
 
 function printInfo() {
     if (gameClear) {
-	let x1 = CANVAS_WIDTH / 2 - 100;
-	let y1 = CANVAS_HEIGHT / 2 - 20 - 25;
-	let w1 = 100 * 2;
-	let h1 = 30 * 2;
-	ctx.beginPath();
-	ctx.rect(x1, y1, w1, h1);
-	ctx.fillStyle = "rgba(10, 10, 10, 0.5)";
-	ctx.fill();
-	ctx.closePath();
-
-	ctx.fillStyle = "white";
-	let str = "YOU WIN!";
-	let w = ctx.measureText(str).width;
-	let x = CANVAS_WIDTH / 2 - w / 2;
-	let y = CANVAS_HEIGHT / 2 - 20;
-	ctx.fillText(str, x, y);
-	str = "Congratulations!";
-	w = ctx.measureText(str).width;
-	x = CANVAS_WIDTH / 2 - w / 2;
-	y = CANVAS_HEIGHT / 2 - 20 + 20;
-	ctx.fillText(str, x, y);
+	gameClearMessage.draw();
     } else if (gameOver) {
-	let x1 = CANVAS_WIDTH / 2 - 100;
-	let y1 = CANVAS_HEIGHT / 2 - 20 - 25;
-	let w1 = 100 * 2;
-	let h1 = 30 * 2;
-	ctx.beginPath();
-	ctx.rect(x1, y1, w1, h1);
-	ctx.fillStyle = "rgba(10, 10, 10, 0.5)";
-	ctx.fill();
-	ctx.closePath();
-	
-	ctx.fillStyle = "white";
-	let str = "GAME OVER";
-	let w = ctx.measureText(str).width;
-	let x = CANVAS_WIDTH / 2 - w / 2;
-	let y = CANVAS_HEIGHT / 2 - 20;
-	ctx.fillText(str, x, y);
-
-	str = "Push 'R' key to restart";
-	w = ctx.measureText(str).width;
-	x = CANVAS_WIDTH / 2 - w / 2;
-	y = CANVAS_HEIGHT / 2 - 20 + 20;
-	ctx.fillText(str, x, y);
+	gameOverMessage.draw();
     }
 
     if (DEBUG) printDebugInfo();
@@ -306,6 +263,9 @@ function gameLoop() {
 				INITIAL_BALL_DX * speed, INITIAL_BALL_DY * speed));
 	}
     }
+    if (gameOver || gameClear) {
+	if (keyboard.R) newGame = true;
+    }
     requestAnimationFrame(gameLoop);
 } // function gameLoop()
 
@@ -336,26 +296,22 @@ document.addEventListener("mousemove", mouseMoveHandler, false);
 
 // keyboard operation handler (down)
 function keyDownHandler(e) {
-    if (e.key === "Right" || e.key === "ArrowRight") {
-	rightPressed = true;
-    } else if (e.key === "Left" || e.key === "ArrowLeft") {
-	leftPressed = true;
-    } else if (e.keyCode == 66) { // B
-	keyBPressed = true;
-    } else if ((gameOver || gameClear) && e.keyCode == 82) { // start new game
-	newGame = true;
-    }
+    if (e.keyCode == 37) keyboard.Left  = true; // <-
+    if (e.keyCode == 39) keyboard.Right = true; // ->
+    if (e.keyCode == 65) keyboard.A     = true; // A
+    if (e.keyCode == 66) keyboard.B     = true; // B
+    if (e.keyCode == 82) keyboard.R     = true; // R
+    if (e.keyCode == 83) keyboard.S     = true; // S
 } // function keyDownHandler(e)
 
 // keyboard operation handler (up)
 function keyUpHandler(e) {
-    if (e.key === "Right" || e.key === "ArrowRight") {
-	rightPressed = false;
-    } else if (e.key === "Left" || e.key === "ArrowLeft") {
-	leftPressed = false;
-    } else if (e.keyCode == 66) { // B
-	keyBPressed = false;
-    }
+    if (e.keyCode == 37) keyboard.Left  = false; // <-
+    if (e.keyCode == 39) keyboard.Right = false; // ->
+    if (e.keyCode == 65) keyboard.A     = false; // A
+    if (e.keyCode == 66) keyboard.B     = false; // B
+    if (e.keyCode == 82) keyboard.R     = false; // R
+    if (e.keyCode == 83) keyboard.S     = false; // S
 } // function keyUpHandler(e)
 
 // mouse move operation handler
@@ -372,6 +328,9 @@ function mouseMoveHandler(e) {
 
 function initializeGame() {
     newGame = true;
+    gameOverMessage = new Message([ "GAME OVER", "Push 'R' key to restart" ])
+    gameClearMessage = new Message([ "YOU WIN!", "Congratulations!",
+				     "Push 'R' key to restart" ])
     //initBricks();
 } // function initializeGame()
 
