@@ -20,7 +20,7 @@ const SCREEN_WIDTH  = 240;
 const SCREEN_HEIGHT = 160;
 
 // canvas size
-const CANVAS_WIDTH  = SCREEN_WIDTH * 2;
+const CANVAS_WIDTH  = SCREEN_WIDTH  * 2;
 const CANVAS_HEIGHT = SCREEN_HEIGHT * 2;
 
 // get canvas and context
@@ -48,17 +48,15 @@ const INITIAL_BALL_DY = -2;
 const INITIAL_BALL_RADIUS = 10;
 let speed = 2;
 
-/*
-let ball = new Ball(INITIAL_BALL_X, INITIAL_BALL_Y, INITIAL_BALL_RADIUS,
-		    INITIAL_BALL_DX * speed, INITIAL_BALL_DY * speed) 
-*/
 let balls = [];
 
 
 // paddle definition
 const paddleHeight = 10;
 const paddleWidth = 75;
-let paddleX = (CANVAS_WIDTH - paddleWidth) / 2;
+//let paddleX = (CANVAS_WIDTH - paddleWidth) / 2;
+
+let paddle = null;
 
 // button (key) state
 let keyboard = {};
@@ -104,7 +102,7 @@ function updateBall() {
     }
     if (keyboard.B) {
 	keyboard.B = false;
-	balls.push(new Ball(paddleX + paddleWidth / 2, INITIAL_BALL_Y,
+	balls.push(new Ball(paddle.x + paddle.width / 2, INITIAL_BALL_Y,
 			    INITIAL_BALL_RADIUS,
 			    INITIAL_BALL_DX * speed, INITIAL_BALL_DY * speed));
     }
@@ -120,12 +118,7 @@ function updateBricks() {
 } //function updateBricks()
 
 function updatePaddle() {
-    // paddle operation
-    if (keyboard.Right) {
-	paddleX = Math.min(paddleX + 7, CANVAS_WIDTH - paddleWidth);
-    } else if (keyboard.Left) {
-	paddleX = Math.max(paddleX - 7, 0);
-    }
+    paddle.update();
 } // function updatePaddle()
 
 function collisionDetection() {
@@ -175,11 +168,7 @@ function drawBall() {
 } // function drawBall()
 
 function drawPaddle() {
-    ctx.beginPath();
-    ctx.rect(paddleX, CANVAS_HEIGHT - paddleHeight, paddleWidth, paddleHeight);
-    ctx.fillStyle = "#0095DD";
-    ctx.fill();
-    ctx.closePath();
+    paddle.draw();
 } // function drawPaddle()
 
 function drawBricks() {
@@ -258,7 +247,7 @@ function gameLoop() {
 	if (!lives) {
 	    gameOver = true;
 	} else { // miss
-	    paddleX = (canvas.width - paddleWidth) / 2;
+	    paddle.x = (canvas.width - paddle.width) / 2;
 	    balls.push(new Ball(INITIAL_BALL_X, INITIAL_BALL_Y, INITIAL_BALL_RADIUS,
 				INITIAL_BALL_DX * speed, INITIAL_BALL_DY * speed));
 	}
@@ -275,13 +264,10 @@ function startNewGame() {
     gameClear = false;
     score = 0;
     lives = 3;
-    /*
-    x = canvas.width / 2;
-    y = canvas.height - 30;
-    dx = 2;
-    dy = -2;*/
-    paddleX = (canvas.width - paddleWidth) / 2;
+
+    let px = (canvas.width - paddleWidth) / 2;
     initBricks();
+    paddle = new Paddle(px, CANVAS_HEIGHT - paddleHeight, paddleWidth, paddleHeight);
     balls.splice(0); // clear
     balls.push(new Ball(INITIAL_BALL_X, INITIAL_BALL_Y, INITIAL_BALL_RADIUS,
 			INITIAL_BALL_DX * speed, INITIAL_BALL_DY * speed));
@@ -296,22 +282,26 @@ document.addEventListener("mousemove", mouseMoveHandler, false);
 
 // keyboard operation handler (down)
 function keyDownHandler(e) {
-    if (e.keyCode == 37) keyboard.Left  = true; // <-
-    if (e.keyCode == 39) keyboard.Right = true; // ->
-    if (e.keyCode == 65) keyboard.A     = true; // A
-    if (e.keyCode == 66) keyboard.B     = true; // B
-    if (e.keyCode == 82) keyboard.R     = true; // R
-    if (e.keyCode == 83) keyboard.S     = true; // S
+    if (e.keyCode == 37)  keyboard.Left  = true; // <-
+    if (e.keyCode == 39)  keyboard.Right = true; // ->
+    if (e.keyCode == 188) keyboard.Left  = true; // , <
+    if (e.keyCode == 190) keyboard.Right = true; // . >
+    if (e.keyCode == 65)  keyboard.A     = true; // A
+    if (e.keyCode == 66)  keyboard.B     = true; // B
+    if (e.keyCode == 82)  keyboard.R     = true; // R
+    if (e.keyCode == 83)  keyboard.S     = true; // S
 } // function keyDownHandler(e)
 
 // keyboard operation handler (up)
 function keyUpHandler(e) {
-    if (e.keyCode == 37) keyboard.Left  = false; // <-
-    if (e.keyCode == 39) keyboard.Right = false; // ->
-    if (e.keyCode == 65) keyboard.A     = false; // A
-    if (e.keyCode == 66) keyboard.B     = false; // B
-    if (e.keyCode == 82) keyboard.R     = false; // R
-    if (e.keyCode == 83) keyboard.S     = false; // S
+    if (e.keyCode == 37)  keyboard.Left  = false; // <-
+    if (e.keyCode == 39)  keyboard.Right = false; // ->
+    if (e.keyCode == 188) keyboard.Left  = false; // , <
+    if (e.keyCode == 190) keyboard.Right = false; // . >
+    if (e.keyCode == 65)  keyboard.A     = false; // A
+    if (e.keyCode == 66)  keyboard.B     = false; // B
+    if (e.keyCode == 82)  keyboard.R     = false; // R
+    if (e.keyCode == 83)  keyboard.S     = false; // S
 } // function keyUpHandler(e)
 
 // mouse move operation handler
@@ -319,7 +309,7 @@ function mouseMoveHandler(e) {
     if (!gameOver && !gameClear) {
 	const relativeX = e.clientX - canvas.offsetLeft;
 	if (relativeX > 0 && relativeX < canvas.width) {
-            paddleX = relativeX - paddleWidth / 2;
+	    paddle.x = relativeX - paddle.width / 2;
 	}
     }
 } // function mouseMoveHandler(e)

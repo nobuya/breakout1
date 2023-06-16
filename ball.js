@@ -27,23 +27,11 @@ class Ball {
 	} else if (this.y + this.dy > CANVAS_HEIGHT - this.radius) { // downside
 	    if (gameOver || gameClear) {
 		this.dy = -this.dy;
-	    } else if (this.x > paddleX && this.x < paddleX + paddleWidth) {
+	    } else if (this.x > paddle.x && this.x < paddle.x + paddle.width) {
 		// hit the paddle
 		this.dy = -this.dy;
 	    } else {
 		this.active = 0;
-/*		
-		lives--;
-		if (!lives) {
-		    gameOver = true;
-		} else { // miss
-		    this.x = canvas.width / 2;
-		    this.y = canvas.height - 30;
-		    this.dx = this.initial_dx;
-		    this.dy = this.initial_dy;
-		    paddleX = (canvas.width - paddleWidth) / 2;
-		}
-*/
 	    }
 	}
 	this.x += this.dx;

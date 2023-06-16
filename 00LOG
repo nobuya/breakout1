@@ -4,6 +4,7 @@
 - ブロックにHPの属性を追加
 - 画面メッセージ出力関連の処理を message.js へ移動
 - keyboard入力関係の処理のコードを変更
+- paddle関連を paddle.js へ移動
 
 2023-06-15
 - ファイル ball.js と brick.js を追加
